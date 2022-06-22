@@ -11,6 +11,25 @@ def parse_int(n):
         return int(n)
     except ValueError:
         return float("nan")
+        
+def get_recommendation(risk_level, intent_request):
+    """
+    Returns the investment recommendation based on risk level selected
+    """
+    
+    recommendation = ""
+    if risk_level == "none":
+        recommendation = "100% bonds (AGG), 0% equities (SPY)."
+    elif risk_level == "low":
+        recommendation = "60% bonds (AGG), 40% equities (SPY)"
+    elif risk_level == "medium":
+        recommendation = "40% bonds (AGG), 60% equities (SPY)"
+    elif risk_level == "high":
+        recommendation = "20% bonds (AGG), 80% equities (SPY)"
+    else:
+        recommendation = "Select a risk level for today"
+    return recommendation
+
 
 
 def build_validation_result(is_valid, violated_slot, message_content):
@@ -25,6 +44,39 @@ def build_validation_result(is_valid, violated_slot, message_content):
         "violatedSlot": violated_slot,
         "message": {"contentType": "PlainText", "content": message_content},
     }
+
+def validate_data(age, investment_amount, intent_request):
+    if age is not None:
+        age = parse_int(
+            age
+        )  # Since parameters are strings it's important to cast values
+        if age <= 0 or age >64:
+            return build_validation_result(
+                False,
+                "age",
+                "The age should be greater than zero and below 65, "
+                "please provide a correct age.",
+            )
+    
+    
+    elif  investment_amount is not None:
+        investment_amount = parse_int(
+            investment_amount
+        )  
+        if investment_amount < 5000:
+            return build_validation_result(
+                False,
+                "investmentAmount",
+                "The amount should be greater than $5000.00, "
+                "please provide a correct amount in dollars.",
+            )
+
+    # A True results is returned if age or amount are valid
+    return build_validation_result(True, None, None)
+
+    
+    
+### Intents Handlers ###
 
 
 ### Dialog Actions Helper Functions ###
@@ -110,9 +162,6 @@ In this section, you will create an Amazon Lambda function that will validate th
 7. Build your bot, and test it with valid and invalid data for the slots.
 
 """
-
-
-### Intents Handlers ###
 def recommend_portfolio(intent_request):
     """
     Performs dialog management and fulfillment for recommending a portfolio.
@@ -123,68 +172,35 @@ def recommend_portfolio(intent_request):
     investment_amount = get_slots(intent_request)["investmentAmount"]
     risk_level = get_slots(intent_request)["riskLevel"]
     source = intent_request["invocationSource"]
-     
-def validate_age(age, intent_request):
-    """
-    Validates the data provided by the user.
-    """
+    
+    if source == "DialogCodeHook":
+        # This code performs basic validation on the supplied input slots.
 
-    # Validate the amount, it should be > 0
-    if age is not None:
-        age = parse_float(
-            age
-        )  # Since parameters are strings it's important to cast values
-        if age <= 0 or age >64:
-            return build_validation_result(
-                False,
-                "age",
-                "The amount should be greater than zero, "
-                "please provide a correct amount in dollars.",
+        # Gets all the slots
+        slots = get_slots(intent_request)
+
+        # Validates user's input using the validate_data function
+        validation_result = validate_data(age, investment_amount, intent_request)
+
+        # If the data provided by the user is not valid,
+        # the elicitSlot dialog action is used to re-prompt for the first violation detected.
+        if not validation_result["isValid"]:
+            slots[validation_result["violatedSlot"]] = None  # Cleans invalid slot
+
+            # Returns an elicitSlot dialog to request new data for the invalid slot
+            return elicit_slot(
+                intent_request["sessionAttributes"],
+                intent_request["currentIntent"]["name"],
+                slots,
+                validation_result["violatedSlot"],
+                validation_result["message"],
             )
 
-    # A True results is returned if age or amount are valid
-    return build_validation_result(True, None, None)
+        # Fetch current session attributes
+        output_session_attributes = intent_request["sessionAttributes"]
 
-
-def validate_investment_amount(investment_amount, intent_request):
-    """
-    Validates the investmentAmount provided by the user.
-    """
-
-    # Validate the amount, it should be > 5000.00
-    if investment_amount is not None:
-        investment_amount = parse_float(
-            investment_amount
-        )  
-        if investment_amount < 5000:
-            return build_validation_result(
-                False,
-                "investmentAmount",
-                "The amount should be greater than $5000.00, "
-                "please provide a correct amount in dollars.",
-            )
-
-    # A True results is returned if age or amount are valid
-    return build_validation_result(True, None, None)
-
-
-def get_recommendation():
-    """
-    Returns the investment recommendation based on risk level selected
-    """
-    recommendation = ""
-    if risk_level == "none":
-        recommendation = "100% bonds (AGG), 0% equities (SPY)."
-    elif risk_level == "low":
-        recommendation = "60% bonds (AGG), 40% equities (SPY)"
-    elif risk_level == "medium":
-        recommendation = "40% bonds (AGG), 60% equities (SPY)"
-    elif risk_level == "high":
-        recommendation = "20% bonds (AGG), 80% equities (SPY)"
-    else:
-        recommendation = "Select a risk level for today"
-    return recommendation
-
+        # Once all slots are valid, a delegate dialog is returned to Lex to choose the next course of action.
+        return delegate(output_session_attributes, get_slots(intent_request))
 
 
 ### Intents Dispatcher ###
@@ -198,6 +214,7 @@ def dispatch(intent_request):
     # Dispatch to bot's intent handlers
     if intent_name == "recommendPortfolio":
         return recommend_portfolio(intent_request)
+        
 
     raise Exception("Intent with name " + intent_name + " not supported")
 
