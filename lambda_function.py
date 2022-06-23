@@ -17,10 +17,10 @@ def get_investment_recommendation(risk_level):
     Returns an initial investment recommendation based on the risk profile.
     """
     risk_levels = {
-        "none": "100% bonds (AGG), 0% equities (SPY)",
-        "low": "60% bonds (AGG), 40% equities (SPY)",
-        "medium": "40% bonds (AGG), 60% equities (SPY)",
-        "high": "20% bonds (AGG), 80% equities (SPY)",
+        "none": "    100% bonds (AGG), 0% equities (SPY)",
+        "low": "    60% bonds (AGG), 40% equities (SPY)",
+        "medium": "    40% bonds (AGG), 60% equities (SPY)",
+        "high": "    20% bonds (AGG), 80% equities (SPY)",
     }
 
     return risk_levels[risk_level.lower()]
@@ -51,22 +51,23 @@ def validate_data(age, investment_amount, intent_request):
                 "age",
                 "The age should be greater than zero and below 65, "
                 "please provide a correct age.",
-            )
+    )
     
     
-    elif  investment_amount is not None:
+    if investment_amount is not None:
         investment_amount = parse_int(
-            investment_amount
+           investment_amount
         )  
-        if investment_amount < 5000:
+        if investment_amount < 5001:
             return build_validation_result(
                 False,
                 "investmentAmount",
                 "The amount should be greater than $5000.00, "
                 "please provide a correct amount in dollars.",
-            )
+    )
 
     # A True results is returned if age or amount are valid
+    
     return build_validation_result(True, None, None)
 
     
@@ -167,6 +168,9 @@ def recommend_portfolio(intent_request):
         # Once all slots are valid, a delegate dialog is returned to Lex to choose the next course of action.
         return delegate(output_session_attributes, get_slots(intent_request))
         
+        
+        
+        
     initial_recommendation = get_investment_recommendation(risk_level)
     
     return close(
@@ -174,9 +178,9 @@ def recommend_portfolio(intent_request):
         "Fulfilled",
         {
             "contentType": "PlainText",
-            "content": """Thank you for your information;
+            "content": """Based on the risk level selected, the recommended portfolio for {} is: 
+            {}
 
-            {}{}
             """.format(
              first_name, initial_recommendation
             ),
