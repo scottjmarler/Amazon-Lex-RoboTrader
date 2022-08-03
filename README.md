@@ -1,22 +1,18 @@
-# Fintech-Challenge_15
-RoboTrader
+
+# RoboTrader
 
 
+## Algorithmic Trading Bot
 
-# Module 15 RoboTrader
+In this project, I combined my AWS skills with my existing Python superpowers to create a bot that will recommend an investment portfolio for a retirement plan.
 
+I accomplished the following main tasks:
 
-## Challenge: Algorithmic Trading Bot
+Configured the initial robo advisor: Defined an Amazon Lex bot with a single intent that establishes a conversation about requirements to suggest an investment portfolio for retirement.
 
-In this Challenge, you’ll combine your new AWS skills with your existing Python superpowers to create a bot that will recommend an investment portfolio for a retirement plan.
+Built and tested the robo advisor: Made sure that the bot works and accurately responds during the conversation with the user.
 
-You’ll be asked to accomplish the following main tasks:
-
-Configure the initial robo advisor: Define an Amazon Lex bot with a single intent that establishes a conversation about requirements to suggest an investment portfolio for retirement.
-
-Build and test the robo advisor: Make sure that your bot works and accurately responds during the conversation with the user.
-
-Enhance the robo advisor with an Amazon Lambda function: Create an Amazon Lambda function that validates the user's input and returns the investment portfolio recommendation. This includes testing the Amazon Lambda function and integrating it with the bot.
+Enhanced the robo advisor with an Amazon Lambda function: Created an Amazon Lambda function that validates the user's input and returns the investment portfolio recommendation. This included testing the Amazon Lambda function and integrating it with the bot.
 
 
 
@@ -62,19 +58,16 @@ Enhance the robo advisor with an Amazon Lambda function: Create an Amazon Lambda
 ## Usage
 
 
-* This section divides the Challenge instructions into the following three steps:
+* This project consisted of the following:
 
-    * Configure the initial robo advisor
+    * Configured the initial robo advisor
 
-    * Build and test the robo advisor
+    * Built and tested the robo advisor
 
-    * Enhance the robo advisor with an Amazon Lambda function
+    * Enhanced the robo advisor with an Amazon Lambda function
 
 
 >
-> Available at:
-https://courses.bootcampspot.com/courses/1251/assignments/25278?module_item_id=512041
-
 
 ## Working Bot Videos
 
